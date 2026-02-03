@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DPS</title>
+  <link href="styles.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spoqa-han-sans@3.3.0/css/SpoqaHanSansNeo.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- DEBUG: Temporary alignment helper - DELETE WHEN DONE -->
+  <style id="debugBorders">
+    /* Uncomment to see borders for debugging alignment */
+    
+    /* .listHeader { outline: 1px solid red !important; }
+    .listHeader .headerCell { outline: 1px solid yellow !important; }
+    .list .item { outline: 1px solid green !important; }
+    .list .item .content { outline: 1px solid blue !important; }
+    .list .item .rank,
+    .list .item .classIcon,
+    .list .item .name,
+    .list .item .damage,
+    .list .item .dps,
+    .list .item .crit,
+    .list .item .contribution,
+    .list .item .diff { outline: 1px solid cyan !important; }
+    */
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="meter">
+      <div class="header">
+        <!-- <div class="bossIcon">
+          <img src="./assets/logo.png" />
+        </div> -->
+        <div class="bossNames">
+          <span class="bossName"></span>
+        </div>
+
+        <div class="headerBtns">
+          <div class="headerBtn resetBtn"><i data-lucide="rotate-ccw"></i></div>
+          <div class="headerBtn settingsBtn"><i data-lucide="settings"></i></div>
+          <div class="headerBtn collapseBtn">
+            <i class="collapseIcon" data-lucide="arrow-up-wide-narrow"></i>
+          </div>
+          <div class="headerBtn exitBtn">×</div>
+        </div>
+      </div>
+      <div class="detailsPanel" role="dialog" aria-modal="true">
+        <div class="detailsHeader">
+          <div class="detailsTitle" data-i18n="details.header">Details</div>
+          <div class="tooltip" data-i18n="details.tooltip">
+            Damage over time hits are not included in total crit, double, perfect, back attack, or
+            parry ratios.
+          </div>
+          <div class="detailsHeaderControls">
+            <div class="detailsSettingsMenuWrapper">
+              <button class="detailsSettingsBtn" type="button" aria-label="Open details settings"
+                data-i18n-aria-label="details.settings.ariaLabel">
+                <i data-lucide="settings"></i>
+              </button>
+              <div class="detailsSettingsMenu" role="menu">
+                <div class="detailsSettings">
+                  <div class="detailsSettingsLabel" data-i18n="details.panelBackground">
+                    Panel background
+                  </div>
+                  <div class="detailsSettingsControl">
+                    <input class="detailsOpacityInput" type="range" min="0" max="100" step="5" value="50" />
+                    <span class="detailsOpacityValue">50%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="closeX detailsClose">×</div>
+          </div>
+        </div>
+
+        <div class="detailsBody">
+          <div class="detailsStats"></div>
+
+          <div class="detailsSkills">
+            <div class="skillHeader">
+              <div class="headerCell name" data-i18n="details.skills.skill">Skill</div>
+              <div class="headerCell hit" data-i18n="details.skills.hits">Hits</div>
+              <div class="headerCell avg" data-i18n="details.skills.avg">Avg</div>
+              <div class="headerCell dmg" data-i18n="details.skills.totalDamage">Total Damage</div>
+            </div>
+
+            <div class="skills"></div>
+          </div>
+        </div>
+      </div>
+      <div class="settingsPanel" role="dialog" aria-modal="true">
+        <div class="settingsHeader">
+          <div class="settingsTitle" data-i18n="settings.title">Settings</div>
+          <div class="closeX settingsClose">×</div>
+        </div>
+        <div class="settingsBody">
+          <div class="settingsRow">
+            <div class="settingsInfo">
+              <div class="settingsLabel" data-i18n="settings.lockedPort">Detected device/port</div>
+              <div class="settingsValue">
+                <span class="lockedIp">-</span>
+                <span class="lockedPort">-</span>
+              </div>
+            </div>
+            <button class="settingsAction resetDetectBtn" data-i18n="settings.resetDetection">
+              Reset detection
+            </button>
+          </div>
+          <div class="settingsRow settingsRowInput">
+            <label class="settingsLabel" for="characterNameInput" data-i18n="settings.characterName">
+              Character name
+            </label>
+            <input id="characterNameInput" class="characterNameInput" placeholder="Enter your character name"
+              data-i18n-placeholder="settings.characterNamePlaceholder" />
+          </div>
+          <label class="settingsCheckbox">
+            <input type="checkbox" class="onlyMeCheckbox" />
+            <span data-i18n="settings.onlyMe">Only show my character</span>
+          </label>
+          <div class="settingsRow settingsRowSelect">
+            <div class="settingsInfo">
+              <div class="settingsLabel" data-i18n="settings.language.label">Language</div>
+            </div>
+            <select class="settingsSelect languageSelect">
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+              <option value="zh-Hant">繁體中文</option>
+              <option value="zh-Hans">简体中文</option>
+            </select>
+          </div>
+          <div class="settingsRow settingsRowSelect">
+            <div class="settingsInfo">
+              <div class="settingsLabel" data-i18n="settings.targetSelection.label">
+                Target selection (experimental)
+              </div>
+            </div>
+            <select class="settingsSelect targetSelect">
+              <option value="mostDamage" data-i18n="settings.targetSelection.options.mostDamage">
+                Most damage (current)
+              </option>
+              <option value="mostRecent" data-i18n="settings.targetSelection.options.mostRecent">
+                Most recently damaged
+              </option>
+              <option value="allTargets" data-i18n="settings.targetSelection.options.allTargets">
+                All targets combined
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="settingsCheckbox">
+              <input type="checkbox" class="debugLoggingCheckbox" />
+              <span data-i18n="settings.debugLogging">Enable debug logging</span>
+            </label>
+          </div>
+          <div>
+            <label class="settingsCheckbox">
+              <input type="checkbox" class="packetLoggingCheckbox" />
+              <span data-i18n="settings.packetLogging">Enable packet logging (logs/packets/)</span>
+            </label>
+          </div>
+
+          <div class="settingsDivider"></div>
+
+          <div class="settingsSection">
+            <div class="settingsSectionTitle">Global Hotkeys</div>
+            <div class="settingsRow settingsRowHotkey">
+              <div class="settingsInfo">
+                <div class="settingsLabel">Toggle Hide/Show</div>
+                <div class="settingsHint">Control the meter without leaving your game</div>
+              </div>
+              <div class="hotkeyInput" id="hotkeyToggle" tabindex="0">Ctrl+T</div>
+            </div>
+            <div class="settingsRow settingsRowHotkey">
+              <div class="settingsInfo">
+                <div class="settingsLabel">Reset Meter</div>
+              </div>
+              <div class="hotkeyInput" id="hotkeyReset" tabindex="0">Ctrl+R</div>
+            </div>
+          </div>
+
+          <button class="discordButton" data-i18n="settings.discord">
+            💬 Get support on our Discord
+          </button>
+          <button class="quitButton" data-i18n="settings.quit">Quit</button>
+        </div>
+      </div>
+      <div class="listHeader">
+        <div class="headerCell rank">#</div>
+        <div class="headerCell player">Player</div>
+        <div class="headerCell damage">Damage</div>
+        <div class="headerCell dps">DPS</div>
+        <div class="headerCell crit">Crit</div>
+        <div class="headerCell contrib">%</div>
+        <div class="headerCell diff">Diff</div>
+      </div>
+      <div class="list"></div>
+      <div class="battleTime">
+        <div class="status"></div>
+        <div class="tick"></div>
+        <div class="analysisStatus" data-i18n="battleTime.analysing">Analysing data...</div>
+      </div>
+    </div>
+    <div class="console" id="debugConsole" style="
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.9);
+          color: lime;
+          font-family: monospace;
+          font-size: 11px;
+          padding: 8px;
+          max-height: 200px;
+          overflow-y: auto;
+          display: none;
+          z-index: 9999;
+          border-top: 2px solid #00ff00;
+        "></div>
+  </div>
+  <div class="updateModal" id="updateModal">
+    <div class="updateModalCard">
+      <div class="updateModalTitle" data-i18n="update.title">New update available</div>
+      <div class="updateModalText" id="updateModalText"></div>
+      <div class="updateModalActions">
+        <button class="updateModalBtn primary" data-i18n="update.ok">OK</button>
+      </div>
+    </div>
+  </div>
+  <!-- Debug Console -->
+  <script>
+    (function() {
+      const consoleEl = document.getElementById('debugConsole');
+      const maxLines = 50;
+      let lineCount = 0;
+
+      function addLog(type, args) {
+        const msg = Array.from(args).map(arg => {
+          if (typeof arg === 'object') {
+            try { return JSON.stringify(arg); }
+            catch { return String(arg); }
+          }
+          return String(arg);
+        }).join(' ');
+
+        const time = new Date().toLocaleTimeString();
+        const color = {
+          log: '#00ff00',
+          warn: '#ffaa00',
+          error: '#ff0000',
+          info: '#00aaff'
+        }[type] || '#00ff00';
+
+        const line = document.createElement('div');
+        line.style.color = color;
+        line.textContent = `[${time}] ${type.toUpperCase()}: ${msg}`;
+
+        consoleEl.appendChild(line);
+        lineCount++;
+
+        // Remove old lines
+        if (lineCount > maxLines) {
+          consoleEl.removeChild(consoleEl.firstChild);
+          lineCount--;
+        }
+
+        // Auto scroll to bottom
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+
+      // Intercept console methods
+      const originalLog = console.log;
+      const originalWarn = console.warn;
+      const originalError = console.error;
+      const originalInfo = console.info;
+
+      console.log = function() {
+        addLog('log', arguments);
+        originalLog.apply(console, arguments);
+      };
+
+      console.warn = function() {
+        addLog('warn', arguments);
+        originalWarn.apply(console, arguments);
+      };
+
+      console.error = function() {
+        addLog('error', arguments);
+        originalError.apply(console, arguments);
+      };
+
+      console.info = function() {
+        addLog('info', arguments);
+        originalInfo.apply(console, arguments);
+      };
+
+      // Toggle console with Ctrl+Shift+D
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+          consoleEl.style.display = consoleEl.style.display === 'none' ? 'block' : 'none';
+        }
+      });
+
+      console.log('Debug console initialized - Press Ctrl+Shift+D to toggle');
+    })();
+  </script>
+
+  <!-- Performance & Smooth Animations -->
+  <script src="./js/interpolation.js"></script>
+  <script src="./js/performance-monitor.js"></script>
+
+  <script src="./js/battleTime.js"></script>
+  <script src="./js/meter.js"></script>
+  <script src="./js/details.js"></script>
+  <script src="./js/hotkeys.js"></script>
+
+  <!-- 추가 -->
+  <script src="./js/checkRelease.js"></script>
+
+  <script src="./js/i18n.js"></script>
+  <script src="./js/core.js"></script>
+
+  <!-- ========================================= -->
+
+  <!-- ========================================= -->
+  <!-- MOCK DATA FOR UI TESTING - DELETE WHEN DONE -->
+  <!-- ========================================= -->
+  <script>
+    // Set to false to disable mock data
+    const ENABLE_MOCK_DATA = false;
+
+    if (ENABLE_MOCK_DATA) {
+      console.log('🎭 Mock data enabled - for UI testing only');
+
+      // Create fake JavaFX bridge and data objects for standalone testing
+      if (!window.javaBridge) {
+        window.javaBridge = {
+          getSetting: () => null,
+          setSetting: () => {},
+          getAion2WindowTitle: () => null,
+          resetDps: () => {},
+          resetAutoDetection: () => {},
+          openBrowser: (url) => window.open(url, '_blank'),
+          exitApp: () => window.close(),
+          setCharacterName: () => {},
+          setDebugLoggingEnabled: () => {},
+          setTargetSelection: () => {},
+          getConnectionInfo: () => null,
+          moveWindow: () => {},
+        };
+        console.log('✓ Created fake javaBridge');
+      }
+
+      if (!window.dpsData) {
+        window.dpsData = {
+          getDpsData: () => null,
+          getBattleDetail: () => null,
+        };
+        console.log('✓ Created fake dpsData');
+      }
+
+      // Wait for app to initialize
+      let retryCount = 0;
+      const MAX_RETRIES = 30; // 30 * 300ms = 9 seconds max
+
+      const initMockData = () => {
+        retryCount++;
+
+        if (!window.dpsApp?.meterUI || !window.dpsApp?.detailsUI) {
+          if (retryCount >= MAX_RETRIES) {
+            console.error('❌ Failed to initialize mock data - app not ready');
+            return;
+          }
+          console.log(`⏳ Waiting for app... (${retryCount}/${MAX_RETRIES})`);
+          setTimeout(initMockData, 300);
+          return;
+        }
+
+        console.log('✓ DPS App ready, loading mock data...');
+
+        // Get references to UI components
+        const meterUI = window.dpsApp.meterUI;
+        const detailsUI = window.dpsApp.detailsUI;
+
+        // Mock player data
+        const mockPlayers = [
+          {
+            id: 1, name: '同尘', job: 'chanter',
+            totalDamage: 15420000, dps: 125000, burstDps: 185000,
+            totalCritPct: 68.5, totalBackPct: 42.3,
+            damageContribution: 28.5, isUser: true, hasNickname: true
+          },
+          {
+            id: 2, name: 'ShadowKnight', job: 'gladiator',
+            totalDamage: 12800000, dps: 105000, burstDps: 220000,
+            totalCritPct: 72.3, totalBackPct: 15.8,
+            damageContribution: 23.7, isUser: false, hasNickname: true
+          },
+          {
+            id: 3, name: '雲朵', job: 'sorcerer',
+            totalDamage: 11500000, dps: 95000, burstDps: 245000,
+            totalCritPct: 65.8, totalBackPct: 0,
+            damageContribution: 21.3, isUser: false, hasNickname: true
+          },
+          {
+            id: 4, name: 'HealerMain', job: 'cleric',
+            totalDamage: 8900000, dps: 72000, burstDps: 88000,
+            totalCritPct: 58.2, totalBackPct: 2.1,
+            damageContribution: 16.5, isUser: false, hasNickname: true
+          },
+          {
+            id: 5, name: 'sefd', job: 'ranger',
+            totalDamage: 5200000, dps: 42000, burstDps: 95000,
+            totalCritPct: 71.5, totalBackPct: 78.4,
+            damageContribution: 9.6, isUser: false, hasNickname: true
+          },
+          {
+            id: 6, name: 'Player 6', job: 'templar',
+            totalDamage: 320000, dps: 2600, burstDps: 3200,
+            totalCritPct: 45.2, totalBackPct: 0,
+            damageContribution: 0.6, isUser: false, hasNickname: false
+          },
+        ];
+
+        // Mock skills data for details panel
+        const mockSkills = {
+          1: {
+            totalDmg: 15420000,
+            dps: 125000,
+            burstDps: 185000,
+            contributionPct: 28.5,
+            totalCritPct: 68.5,
+            totalPerfectPct: 45.2,
+            totalDoublePct: 12.3,
+            totalBackPct: 42.3,
+            totalParryPct: 5.2,
+            combatTime: '2m 3s',
+            skills: [
+              { code: '13350000', name: 'Divine Strike', dmg: 4200000, time: 85, crit: 60, parry: 3, perfect: 40, double: 10, back: 35, specialtySlots: [1, 3, 5] },
+              { code: '13010000', name: 'Holy Fury', dmg: 3800000, time: 72, crit: 55, parry: 5, perfect: 38, double: 12, back: 30, specialtySlots: [2, 4] },
+              { code: '13030000', name: 'Smite', dmg: 2900000, time: 95, crit: 68, parry: 8, perfect: 42, double: 15, back: 40, specialtySlots: [1] },
+              { code: '13040000', name: 'Judgment', dmg: 2100000, time: 45, crit: 70, parry: 2, perfect: 50, double: 8, back: 45, specialtySlots: [3, 5] },
+              { code: '13100000', name: 'Blessing', dmg: 1420000, time: 38, crit: 72, parry: 6, perfect: 48, double: 10, back: 38, specialtySlots: [] },
+              { code: '13120000', name: 'Shield Bash', dmg: 1000000, time: 50, crit: 65, parry: 10, perfect: 35, double: 5, back: 20, specialtySlots: [1, 2, 3] },
+            ]
+          }
+        };
+
+        // Update meter with mock data
+        meterUI.updateFromRows(mockPlayers);
+
+        // Update boss name
+        document.querySelector('.bossName').textContent = 'Training Scarecrow';
+
+        // Update battle time
+        const statusEl = document.querySelector('.battleTime .status');
+        const tickEl = document.querySelector('.battleTime .tick');
+        if (statusEl) statusEl.textContent = 'In Combat';
+        if (tickEl) tickEl.textContent = '2:03';
+
+        // Mock getDetails function
+        window.mockGetDetails = (row) => {
+          return Promise.resolve(mockSkills[row.id] || {
+            totalDmg: row.totalDamage,
+            dps: row.dps,
+            burstDps: row.burstDps || 0,
+            contributionPct: row.damageContribution,
+            totalCritPct: row.totalCritPct || 0,
+            totalPerfectPct: 0,
+            totalDoublePct: 0,
+            totalBackPct: row.totalBackPct || 0,
+            totalParryPct: 0,
+            combatTime: '0s',
+            skills: []
+          });
+        };
+
+        console.log('✓ Mock data loaded:', mockPlayers.length, 'players');
+        console.log('💡 Click on a player row to test details panel');
+      };
+
+      // Wait for DOM and start initialization
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(initMockData, 300);
+        });
+      } else {
+        setTimeout(initMockData, 300);
+      }
+    }
+  </script>
+  <!-- ========================================= -->
+  <!-- END MOCK DATA -->
+  <!-- ========================================= -->
+</body>
+
+</html>
