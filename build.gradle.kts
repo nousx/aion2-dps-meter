@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.tbread"
-version = "0.1.5"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -58,9 +58,9 @@ compose.desktop {
                 includeAllModules = true
             }
             targetFormats(TargetFormat.Msi)
-            packageName = "aion2meter-tw"
-            packageVersion = "0.1.5"
-            copyright = "Copyright 2026 Taengu Licensed under MIT License"
+            packageName = "aion2-dps-meter"
+            packageVersion = "1.0.0"
+            copyright = "Copyright 2026 SpecTruM Licensed under MIT License"
         }
 
 

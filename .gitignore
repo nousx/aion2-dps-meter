@@ -52,6 +52,9 @@ debug.log
 settings.properties
 local.properties
 
+### Claude Code ###
+.clauderc
+
 ### Windows ###
 Thumbs.db
 desktop.ini

@@ -222,6 +222,23 @@ Settings are stored in `settings.properties`:
 
 ---
 
+## 📖 Documentation
+
+For detailed technical information and guides:
+
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - Complete technical architecture analysis
+  - System architecture overview with diagrams
+  - Technology stack and dependencies
+  - Core components deep dive
+  - Data flow and packet processing pipeline
+  - Thread safety and concurrency mechanisms
+  - Performance optimizations
+  - Security considerations
+
+- **[All Documentation](docs/)** - Browse all available documentation
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! This is a community-driven project.
@@ -308,7 +325,7 @@ This tool is for **personal use and educational purposes only**.
 
 - **Issues**: [GitHub Issues](../../issues)
 - **Discord**: https://discord.gg/Aion2Global
-- **Documentation**: Check `/docs` folder for detailed guides
+- **Documentation**: [docs/](docs/) folder - Technical guides and architecture
 
 ---
 
