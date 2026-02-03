@@ -1,331 +1,197 @@
-# Aion2 DPS Meter
+# Aion 2 DPS Meter
 
-> **A refactored and enhanced combat analysis tool for AION 2**
-> Forked from [Aion2-Dps-Meter](https://github.com/taengu/Aion2-Dps-Meter) with major improvements in code quality, thread safety, and maintainability.
+> **Real-time combat analysis tool for AION 2**
+>
+> Refactored version with thread safety improvements and modern architecture.
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-purple.svg)](https://kotlinlang.org)
 [![JavaFX](https://img.shields.io/badge/JavaFX-21-orange.svg)](https://openjfx.io)
+[![Release](https://img.shields.io/github/v/release/nousx/aion2-dps-meter)](https://github.com/nousx/aion2-dps-meter/releases)
+
+[한국어](docs/README.ko.md) | [简体中文](docs/README.zh-Hans.md) | [繁體中文](docs/README.zh-Hant.md) | [ไทย](docs/README.th.md) | [Русский](docs/README.ru.md)
 
 ---
 
-## 🎯 Description
+## 📸 Screenshots
 
-A real-time DPS (Damage Per Second) meter and combat analyzer for AION 2 that captures network packets to display:
-- **Real-time damage statistics** for all party members
-- **Skill breakdowns** with crit rates, perfect hits, and specialty slots
-- **DPS rankings** with contribution percentages
-- **Burst DPS tracking** for analyzing damage windows
-- **Combat time tracking** for accurate DPS calculations
+### Main DPS Meter
+![DPS Meter](docs/main_ui.png)
 
-This refactored version includes:
-- ✅ **Thread-safe architecture** - Fixed 3 HIGH severity race conditions
-- ✅ **Modular code structure** - Extracted parsers for better maintainability (~1100+ lines reduced)
-- ✅ **Externalized skill data** - 391 skills in editable JSON configuration
-- ✅ **Unified logging system** - 67% reduction in background threads (3→1)
-- ✅ **AtomicInteger optimizations** - Zero boxing overhead for performance-critical paths
+### Player Details
+![Player Details](docs/playerdetail_ui.png)
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-### Core Features
-- 📊 **Real-time DPS tracking** - Updates every 100ms for responsive feedback
-- 🎮 **Skill analysis** - Detailed breakdown of each skill's performance
-- 🏆 **Party rankings** - Compare your DPS with party members
-- 📈 **Burst DPS calculation** - 5-second sliding window analysis
-- ⚔️ **Specialty slot detection** - Automatically detects active specialty slots (1-5)
-- 🎯 **Target switching** - Analyze DPS on different targets
-- ⏱️ **Combat time tracking** - Accurate active time measurement
-
-### Technical Features
-- 🔒 **Thread-safe** - ConcurrentHashMap, synchronized blocks, atomic operations
-- 🎨 **Modern UI** - Transparent JavaFX overlay with real-time updates
-- 🌐 **Multi-language** - Support for EN, KO, ZH-Hans, ZH-Hant
-- ⌨️ **Global hotkeys** - Toggle visibility and reset data without focusing window
-- 📝 **Debug logging** - Optional packet logging for troubleshooting
-- 🔧 **Configurable** - JSON-based skill configuration for easy updates
+- **Real-time DPS tracking** - Updates every 100ms
+- **Skill breakdown** - Detailed analysis with crit rates and specialty slots
+- **Party rankings** - Compare damage with party members
+- **Burst DPS** - 5-second sliding window for damage spikes
+- **Auto class detection** - Automatically identifies player classes
+- **Multi-language** - English, Korean, Chinese (Simplified/Traditional)
+- **Global hotkeys** - Toggle visibility and reset without focusing window
 
 ---
 
-## 📦 Installation
+## 📦 Quick Start
 
 ### Requirements
-- **Windows 10/11**
-- **Java 21+** (JDK or JRE)
-- **Npcap** (WinPcap-compatible mode)
-- **Administrator privileges** (for packet capture)
+- **Windows 10/11** (x64)
+- **Java 21+** ([Download](https://adoptium.net/temurin/releases/?version=21))
+- **Npcap** ([Download](https://npcap.com/#download))
+  - ⚠️ **MUST** check "Install Npcap in WinPcap API-compatible Mode"
 
-### Setup Steps
+### Installation
 
-1. **Install Npcap** (Required for packet capture)
-   ```
-   Download: https://npcap.com/#download
-   ⚠️ MUST check "Install Npcap in WinPcap API-compatible Mode"
-   ```
+1. **Download** the latest [Release](https://github.com/nousx/aion2-dps-meter/releases)
+2. **Install** Java 21+ and Npcap
+3. **Run** the MSI installer as Administrator
+4. **Launch** the application as Administrator
 
-2. **Install Java 21+**
-   ```
-   Download: https://adoptium.net/temurin/releases/?version=21
-   ```
+### First Time Setup
 
-3. **Download Release**
-   - Go to [Releases](../../releases)
-   - Download `aion2-dps-meter-{version}.msi`
-   - Run installer as Administrator
+1. Go to character selection screen (if AION 2 is running)
+2. Launch DPS meter as Administrator
+3. Allow Windows Firewall prompt
+4. Enter game world
 
-4. **Launch Application**
-   ```
-   Run as Administrator (required for packet capture)
-   ```
-
-5. **First Time Setup**
-   - If AION 2 is running, go to character selection screen
-   - Launch DPS meter as Administrator
-   - Allow Windows Firewall prompt (select Private + Public networks)
-   - Enter game world - DPS meter should appear
-
-6. **Troubleshooting**
-   - If meter doesn't appear: Teleport using Kisk/Hideout or enter/exit dungeon
-   - If meter stops working: Teleport again to refresh packet capture
-   - Still not working: Restart from step 4
-
----
-
-## 🛠️ Development
-
-### Build from Source
-
-```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/aion2-dps-meter.git
-cd aion2-dps-meter
-
-# Build with Gradle
-./gradlew build
-
-# Run application
-./gradlew run
-
-# Create MSI installer
-./gradlew packageMsi
-```
-
-### Project Structure
-
-```
-src/main/kotlin/
-├── DataStorage.kt              # Thread-safe data storage layer
-├── DpsCalculator.kt            # DPS calculation and skill inference
-├── Main.kt                     # Application entry point
-├── packet/
-│   ├── PcapCapturer.kt         # Network packet capture
-│   ├── StreamProcessor.kt      # Main packet processing coordinator
-│   └── parser/
-│       ├── DamagePacketParser.kt   # Damage packet parsing
-│       ├── NameResolver.kt         # Nickname/entity name parsing
-│       └── SummonTracker.kt        # Summon entity tracking
-├── data/
-│   └── SkillCodeLoader.kt      # JSON skill data loader
-├── logging/
-│   └── UnifiedLogger.kt        # Consolidated logging system
-├── webview/
-│   └── BrowserApp.kt           # JavaFX UI controller
-└── entity/
-    ├── ParsedDamagePacket.kt   # Damage packet data model
-    └── PersonalData.kt         # Player statistics tracking
-
-src/main/resources/
-├── data/
-│   └── skill_codes.json        # 391 skill definitions (editable!)
-├── js/
-│   ├── core.js                 # Main UI logic
-│   ├── details.js              # Skill detail panel
-│   └── meter.js                # DPS meter rendering
-└── index.html                  # Main UI template
-```
-
-### Key Technologies
-
-- **Kotlin 1.9+** - Modern JVM language
-- **JavaFX 21** - UI framework with WebView
-- **Pcap4J** - Network packet capture library
-- **Kotlinx Serialization** - JSON handling for skill data
-- **JNA** - Native Windows API integration (global hotkeys)
+**Troubleshooting:** If the meter doesn't appear, teleport using Kisk/Hideout or enter/exit a dungeon.
 
 ---
 
 ## 🎮 Usage
 
-### UI Components
-
-- **Blue Header** - Monster/target name (when available)
-- **Brown Button** - Reset current combat data
-- **Pink Button** - Expand/collapse DPS meter
-- **Class Icons** - Automatically detected class for each player
-- **DPS Bars** - Real-time damage visualization with percentages
-- **Details Panel** - Click any player to see skill breakdown
-
-### Global Hotkeys
-
-- **Toggle Visibility** - Default: `Ctrl+Shift+H` (customizable in settings)
-- **Reset DPS** - Default: `Ctrl+Shift+R` (customizable in settings)
+### Hotkeys
+- **Toggle Visibility:** `Ctrl+Shift+H` (customizable)
+- **Reset DPS:** `Ctrl+Shift+R` (customizable)
 
 ### Details Panel
-
-Click any player name to open detailed statistics:
-- **Total Damage** - Cumulative damage dealt
-- **DPS** - Damage per second (active combat time)
-- **Contribution %** - Percentage of total party damage
-- **Crit Rate** - Critical hit percentage
-- **Perfect Rate** - Perfect hit percentage (class-specific)
-- **Skill Breakdown** - Each skill's damage, hit count, average damage
-- **Specialty Slots** - Active specialty slots (1-5) highlighted per skill
+Click any player name to view:
+- Total damage and DPS
+- Contribution percentage
+- Crit, Perfect, Back attack rates
+- Skill-by-skill breakdown
+- Specialty slot usage (1-5)
 
 ---
 
-## 🔧 Configuration
+## ❓ FAQ
 
-### Skill Data Configuration
+**Q: What makes this different from other DPS meters?**
 
-Edit `src/main/resources/data/skill_codes.json` to update skill names or add new skills:
+This version adds auto-detection for game packets, VPN/ping reducer support, and has been fully refactored for thread safety. Plus, it's got English translations for skills and UI.
 
-```json
-{
-  "version": "1.0",
-  "skills": [
-    {
-      "code": 13350000,
-      "name": "Deadly Strike",
-      "specialtySlots": [1, 2, 3]
-    }
-  ],
-  "possibleOffsets": [1, 2, 3, ...],
-  "skillInference": {
-    "13350000": {
-      "offset1": 13350001,
-      "offset2": 13350002
-    }
-  }
-}
+**Q: Why do I see numbers instead of names?**
+
+Name detection takes a moment because the game doesn't send names very often. Try using a teleport scroll or go to your Legion Hall to speed it up. If you use ExitLag, enable "Shortcut to restart all connections" and use it to reload faster.
+
+**Q: The UI shows up but no damage appears.**
+
+- Double-check that Npcap is installed correctly
+- Exit the app, go to character select, then relaunch
+- Try teleporting to refresh packet capture
+
+**Q: I see other players' DPS but not mine.**
+
+DPS is calculated based on the monster taking the most total damage. Make sure you're hitting the same training dummy as everyone else on the meter.
+
+**Q: Contribution doesn't add up to 100% when I'm solo.**
+
+This usually means name capture failed. Try the teleport trick mentioned above.
+
+**Q: Can I use chat commands or integrate with Discord?**
+
+Not yet, but maybe in the future!
+
+**Q: Why is hit count higher than my skill casts?**
+
+Multi-hit skills count each individual hit separately.
+
+**Q: Some skills show as numbers instead of names.**
+
+These are usually Theostones (accessory procs). If you find other skills showing as numbers, please report them via [GitHub Issues](https://github.com/nousx/aion2-dps-meter/issues).
+
+---
+
+## 🛠️ Building from Source
+
+```bash
+# Clone repository
+git clone https://github.com/nousx/aion2-dps-meter.git
+cd aion2-dps-meter
+
+# Build
+./gradlew build
+
+# Create MSI installer
+./gradlew packageMsi
 ```
-
-### Settings
-
-Settings are stored in `settings.properties`:
-- Network interface selection
-- Server IP/port (auto-detected)
-- Character name filter
-- Target selection mode
-- Debug logging options
-- Hotkey bindings
 
 ---
 
 ## 📖 Documentation
 
-For detailed technical information and guides:
+- **[Architecture](docs/ARCHITECTURE.md)** - Technical deep dive
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute *(coming soon)*
 
-- **[Architecture Documentation](docs/ARCHITECTURE.md)** - Complete technical architecture analysis
-  - System architecture overview with diagrams
-  - Technology stack and dependencies
-  - Core components deep dive
-  - Data flow and packet processing pipeline
-  - Thread safety and concurrency mechanisms
-  - Performance optimizations
-  - Security considerations
+---
 
-- **[All Documentation](docs/)** - Browse all available documentation
+## 🔧 Technical Highlights
+
+This refactored version includes major improvements:
+
+- ✅ **Thread-safe architecture** - Fixed 3 HIGH severity race conditions
+- ✅ **Modular code structure** - Reduced ~1,100+ lines through extraction
+- ✅ **Externalized skill data** - 391 skills in editable JSON
+- ✅ **Unified logging** - 67% reduction in background threads (3→1)
+- ✅ **Performance optimized** - Lock-free atomic operations
+
+**Impact:**
+- 🔒 100% of shared state properly protected
+- 📉 Code reduced by ~1,100+ lines
+- 🏗️ StreamProcessor: 1009→400 lines (split into 4 classes)
+- 📝 DpsCalculator: 1100→280 lines
+- ⚡ 67% fewer background threads
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! This is a community-driven project.
-
-### How to Contribute
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Test thoroughly
-5. Commit with clear messages (`git commit -m 'feat: add amazing feature'`)
-6. Push to your branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-### Development Guidelines
-
-- Follow existing code style (Kotlin conventions)
-- Add comments for complex logic
-- Test thread safety for concurrent code
-- Update skill_codes.json for new skills
-- Update README for new features
-
----
-
-## 📋 Refactoring Summary
-
-This version includes major improvements over the original:
-
-### Phase 1: Stability (Critical Fixes)
-1. ✅ **DataStorage thread safety** - HashMap → ConcurrentHashMap (3 race conditions fixed)
-2. ✅ **PersonalData rolling window** - Synchronized blocks with iterator pattern
-3. ✅ **Current target tracking** - AtomicInteger for lock-free atomicity
-
-### Phase 2: Maintainability (Code Quality)
-4. ✅ **DamagePacketParser extracted** - 205 lines, reduced StreamProcessor by 134 lines
-5. ✅ **NameResolver extracted** - 340 lines, reduced StreamProcessor by 290 lines
-6. ✅ **SummonTracker extracted** - 150 lines, reduced StreamProcessor by 47 lines
-7. ✅ **Skill codes externalized** - 391 skills in JSON, reduced DpsCalculator by 675 lines
-8. ✅ **Logging consolidated** - UnifiedLogger, eliminated 250+ duplicate lines
-
-### Impact
-- 🔒 **Thread-safety**: 100% of shared state now properly protected
-- 📉 **Code reduction**: ~1100+ lines removed through deduplication
-- 🏗️ **Modularity**: StreamProcessor reduced from 1009→400 lines (split into 4 classes)
-- 📝 **Maintainability**: DpsCalculator reduced from 1100→280 lines
-- ⚡ **Performance**: 67% reduction in background threads (3→1)
-- ✅ **All changes backward compatible**
+Contributions are welcome! Feel free to:
+- Report bugs via [Issues](https://github.com/nousx/aion2-dps-meter/issues)
+- Submit pull requests
+- Suggest features or improvements
 
 ---
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE) for details.
 
-Original work by [TK-open-public](https://github.com/TK-open-public/Aion2-Dps-Meter)
-Refactored version by SpecTruM
-
-**Note:** While this license permits commercial use, we kindly request that users consider contributing improvements back to the community rather than selling this software commercially. This is a community-driven project built with ❤️ for AION 2 players.
+**Credits:**
+- Original work: [TK-open-public](https://github.com/TK-open-public/Aion2-Dps-Meter)
+- Continued development: [taengu](https://github.com/taengu/Aion2-Dps-Meter)
+- Refactored version: SpecTruM
 
 ---
 
 ## ⚠️ Disclaimer
 
-This tool is for **personal use and educational purposes only**.
-
+This tool is for **personal use and educational purposes only.**
 - Use at your own risk
-- The developer is not responsible for any consequences from using this tool
-- This project may be paused or made private if requested by game operators
+- The developer is not responsible for any consequences
 - Respect the game's Terms of Service
-
----
-
-## 🙏 Acknowledgments
-
-- **TK-open-public** - Original Aion2-Dps-Meter project
-- **taengu** - Continued development and improvements
-- **AION 2 Community** - Testing and feedback
-- **Pcap4J Contributors** - Network capture library
-- **JavaFX Team** - UI framework
 
 ---
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](../../issues)
-- **Discord**: https://discord.gg/Aion2Global
-- **Documentation**: [docs/](docs/) folder - Technical guides and architecture
+- **Issues:** [GitHub Issues](https://github.com/nousx/aion2-dps-meter/issues)
+- **Discord:** https://discord.gg/Aion2Global
+- **Documentation:** [docs/](docs/)
 
 ---
 
